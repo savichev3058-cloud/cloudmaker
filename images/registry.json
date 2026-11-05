@@ -1,12 +1,12 @@
 {
   "ubuntu-24.04": {
     "name": "ubuntu-24.04",
-    "path": "/home/ivan/cloudmaker/images/ubuntu-24.04-minimal-cloudimg-amd64.img",
+    "path": "/app/images/ubuntu-24.04-minimal-cloudimg-amd64.img",
     "description": "Ubuntu 24.04 LTS Minimal Cloud Image"
   },
   "test-alpine": {
     "name": "test-alpine",
-    "path": "/home/ivan/cloudmaker/images/test.img",
+    "path": "/app/images/test.img",
     "description": "Alpine Test"
   }
 }

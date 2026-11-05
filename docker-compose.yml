@@ -6,5 +6,5 @@ services:
     network_mode: "host"
     volumes:
       - /var/run/libvirt/libvirt-sock:/var/run/libvirt/libvirt-sock
-      - /home/ivan/cloudmaker:/home/ivan/cloudmaker
-    working_dir: /home/ivan/cloudmaker
+      - ./:/app
+    working_dir: /app
