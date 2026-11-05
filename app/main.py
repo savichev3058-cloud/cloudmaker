@@ -115,6 +115,8 @@ def create_vm(req: VMCreateRequest):
         raise HTTPException(status_code=400, detail=f"Image '{req.image_name}' not found")
 
     base_image = registry[req.image_name]["path"]
+    if not os.path.isabs(base_image):
+     base_image = os.path.abspath(os.path.join(BASE_DIR, base_image))
     if not os.path.exists(base_image):
         conn.close()
         raise HTTPException(status_code=400, detail="Base image missing")

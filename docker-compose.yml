@@ -2,9 +2,12 @@ services:
   cloudmaker-api:
     build: .
     container_name: cloudmaker-api
-    restart: unless-stopped
-    network_mode: "host"
+    restart: always
+    ports:
+      - "8000:8000"
     volumes:
+      - ${PWD}:${PWD}
       - /var/run/libvirt/libvirt-sock:/var/run/libvirt/libvirt-sock
-      - ./:/app
-    working_dir: /app
+    working_dir: ${PWD}
+    environment:
+      - PYTHONUNBUFFERED=1

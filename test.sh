@@ -11,7 +11,7 @@ echo "[+] API is reachable"
 echo "[*] Testing image registration..."
 curl -s -X POST "$API/api/images" \
   -H "Content-Type: application/json" \
-  -d '{"name": "test-alpine", "path": "/app/images/test.img", "description": "Alpine Test"}' | grep "registered" > /dev/null
+  -d '{"name": "test-alpine", "path": "$SCRIPT_DIR/images/test.img", "description": "Alpine Test"}' | grep "registered" > /dev/null
 echo "[+] Image registered"
 
 echo "[*] Testing network creation..."
