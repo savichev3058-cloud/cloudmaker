@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>CloudMaker Control Panel</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 24px; }
+    h1 { margin-bottom: 8px; font-size: 24px; }
+    .card { background: #1e293b; border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid #334155; }
+    th { background: #0f172a; color: #94a3b8; font-size: 13px; }
+    button { background: #3b82f6; border: none; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+    button:hover { background: #2563eb; }
+    button.danger { background: #ef4444; }
+    button.danger:hover { background: #dc2626; }
+    button.success { background: #10b981; }
+    button.success:hover { background: #059669; }
+    .status-running { color: #34d399; font-weight: bold; }
+    .status-shutoff { color: #94a3b8; }
+    input { background: #0f172a; border: 1px solid #334155; color: white; padding: 6px 10px; border-radius: 4px; }
+    .form-group { display: inline-block; margin-right: 12px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h1>☁️ CloudMaker Dashboard</h1>
+  <p style="color: #94a3b8; font-size: 14px;">Управление виртуальными машинами QEMU/KVM</p>
+
+  <div class="card">
+    <h3>Создать виртуальную машину</h3>
+    <div class="form-group"><label>Имя: </label><input id="vmName" value="worker-01"/></div>
+    <div class="form-group"><label>vCPU: </label><input id="vmCpu" type="number" value="1" min="1" max="4" style="width: 50px;"/></div>
+    <div class="form-group"><label>RAM (MB): </label><input id="vmRam" type="number" value="1024" min="512" max="4096" style="width: 80px;"/></div>
+    <div class="form-group"><label>Диск (GB): </label><input id="vmDisk" type="number" value="10" min="5" max="30" style="width: 60px;"/></div>
+    <div class="form-group"><button class="success" onclick="createVm()">Запустить ВМ</button></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h3 style="margin:0;">Виртуальные машины</h3>
+      <button onclick="refreshVms()">Обновить</button>
+    </div>
+    <table id="vmsTable">
+      <thead><tr><th>ИМЯ</th><th>СТАТУС</th><th>vCPU</th><th>RAM</th><th>IP АДРЕСА</th><th>ДЕЙСТВИЯ</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    async function refreshVms() {
+      const res = await fetch('/api/vms');
+      const data = await res.json();
+      const tbody = document.querySelector('#vmsTable tbody');
+      tbody.innerHTML = '';
+      data.forEach(vm => {
+        const tr = document.createElement('tr');
+        const stClass = vm.state === 'running' ? 'status-running' : 'status-shutoff';
+        tr.innerHTML = `
+          <td><strong>${vm.name}</strong></td>
+          <td class="${stClass}">${vm.state}</td>
+          <td>${vm.vcpus}</td>
+          <td>${vm.ram_mb} MB</td>
+          <td>${vm.ips.length ? vm.ips.join(', ') : '—'}</td>
+          <td>
+            ${vm.state === 'running' 
+              ? `<button class="danger" onclick="stopVm('${vm.name}')">Стоп</button>` 
+              : `<button class="success" onclick="startVm('${vm.name}')">Старт</button>`}
+            <button class="danger" onclick="deleteVm('${vm.name}')" style="margin-left: 6px;">Удалить</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function createVm() {
+      const payload = {
+        name: document.getElementById('vmName').value,
+        vcpus: parseInt(document.getElementById('vmCpu').value),
+        ram_mb: parseInt(document.getElementById('vmRam').value),
+        disk_size_gb: parseInt(document.getElementById('vmDisk').value),
+        image_name: 'ubuntu-24.04'
+      };
+      const res = await fetch('/api/vms', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        alert('Ошибка: ' + err.detail);
+      } else {
+        refreshVms();
+      }
+    }
+
+    async function stopVm(name) { await fetch(`/api/vms/${name}/stop`, {method: 'POST'}); refreshVms(); }
+    async function startVm(name) { await fetch(`/api/vms/${name}/start`, {method: 'POST'}); refreshVms(); }
+    async function deleteVm(name) { await fetch(`/api/vms/${name}`, {method: 'DELETE'}); refreshVms(); }
+
+    refreshVms();
+    setInterval(refreshVms, 5000);
+  </script>
+</body>
+</html>

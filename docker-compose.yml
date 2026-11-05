@@ -1,0 +1,10 @@
+services:
+  cloudmaker-api:
+    build: .
+    container_name: cloudmaker-api
+    restart: unless-stopped
+    network_mode: "host"
+    volumes:
+      - /var/run/libvirt/libvirt-sock:/var/run/libvirt/libvirt-sock
+      - /home/ivan/cloudmaker:/home/ivan/cloudmaker
+    working_dir: /home/ivan/cloudmaker

@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+vms/*.qcow2
+images/*.img
+configs/*.iso
+configs/*-*.yaml

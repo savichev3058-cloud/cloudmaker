@@ -1,0 +1,14 @@
+#cloud-config
+users:
+  - name: clouduser
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: sudo
+    shell: /bin/bash
+    lock_passwd: false
+    passwd: "$6$rounds=4096$rounds$mQo0dK1CjC7G8Y9q0H1q7z0YQO5v7f6n3E5M8v1P4K7" 
+    # пароль по умолчанию: ubuntu
+ssh_pwauth: true
+chpasswd:
+  list: |
+    clouduser:ubuntu
+  expire: false
