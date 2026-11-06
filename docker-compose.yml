@@ -3,6 +3,10 @@ services:
     build: .
     container_name: cloudmaker-api
     restart: always
+    pid: host
+    privileged: true
+    security_opt:
+      - label:disable
     ports:
       - "8000:8000"
     volumes:
